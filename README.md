@@ -1,2 +1,33 @@
-# readabook
-:books: Encourage people to read paperbacks, old style. 
+# readabook.in
+:books: Encourage people to read paperbacks, old style.
+
+#### Features
+* Register
+* Log in
+* Log out
+* User page:
+    * Tabs: Your books (books borrowed by the user)
+    * Homepage:
+        * Display all books, searchable
+        * Request from this page
+        * Click on book name, take to book page and then allow request to borrow book
+* Book page:
+    * Tabs: Your books
+    * Homepage:
+        * Display individual book details
+            * title
+            * author(s)
+            * thumbnail image
+            * pages
+            * genre
+            * description
+
+* Admin page:
+    * Tabs:
+        * Books issued
+        * Requested books
+        * Books to acquire
+    * Homepage:
+        * Display all books, searchable
+        * Count of the available books
+        * Ability to add books to the catalog

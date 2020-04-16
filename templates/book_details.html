@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Books
+{% endblock %}
+
+{% block main %}
+<h4>{{ book.title }}</h4>
+By <span style="text-transform: uppercase;">{{ book.author }}</span>
+<div class="row">
+    <div class="col col-md-7">
+        <hr>
+        <b>ABOUT <i><span style="text-transform: uppercase;">{{ book.title }}</span></i></b>
+    </div>
+    <div class="col col-md-5">
+        <hr>
+        <b>ABOUT <span style="text-transform: uppercase;">{{ book.author }}</span></b>
+    </div>
+</div>
+{% endblock %}

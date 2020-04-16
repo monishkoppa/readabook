@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Books
+{% endblock %}
+
+{% block main %}
+    <table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Book Title</th>
+      <th scope="col">Author</th>
+      <th scope="col">ISBN</th>
+      <th scope="col">Request Book</th>
+    </tr>
+  </thead>
+  <tbody>
+      {% for book in books %}
+        <tr>
+      <th scope="row"><a href="/book/{{ book.isbn }}">{{ book.title }}</a></th>
+      <td>{{ book.author }}</td>
+      <td>{{ book.isbn }}</td>
+      <td>Request book</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Borrow book
+{% endblock %}
+
+{% block main %}
+    <form action="/borrow" method="post">
+        <div class="form-group">
+            <input autocomplete="off" autofocus class="form-control" name="email" placeholder="Your email address" type="email">
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="fullname" placeholder="Fullname" type="text">
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="phoneNumber" placeholder="Phone number" type="text">
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="bookTitle" placeholder="Name of the book" type="text">
+        </div>
+        <div class="form-group">
+        <select class="custom-select">
+          <option selected>Choose your Pickup Location</option>
+          <option value="1">(Old Madras Road) RMZ Infinity, Old Madras Road, Bangalore-560016</option>
+          <option value="2">(Basavanagudi) Near Dominos, Gavipuram Extension, Bangalore - 560019</option>
+          <option value="3">(JP Nagar 4th Phase) Kalyani Vista, Bilekahalli, Near Delmia Circle, Bangalore-560076</option>
+          <option value="4">(Kanakapura Road) Doddakallasandra, Bangalore-560062</option>
+          <option value="5">(Marathahalli) Salarpuria hallmark, Marathahalli - Sarjapur Outer Ring Rd, Kaverappa Layout, Kadubeesanahalli, Bengaluru, Karnataka 560103</option>
+          <option value="6">I will collect the book at the monthly meetup (https://www.meetup.com/Read-A-Book/events)</option>
+          <option value="7">I will pay Rs. 50, Please deliver the book to me (The book return needs to be handled by the Reader)</option>
+        </select>
+        </div>
+        <div class="form-group">
+            <input class="form-control" name="postalAdd" placeholder="Postal Address" type="text">
+        </div>
+        <button class="btn btn-primary" type="submit">Submit Request</button>
+    </form>
+{% endblock %}
