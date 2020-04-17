@@ -7,7 +7,7 @@ from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
-from helpers import apology, login_required, lookup, usd
+from helpers import apology, login_required, lookup, usd, admin_required
 
 # Configure application
 app = Flask(__name__)
@@ -40,7 +40,7 @@ db = SQL("sqlite:///readabook.db")
 @app.route("/")
 @login_required
 def index():
-    """Show suer homapage"""
+    """Show user homapage"""
     rows = db.execute("SELECT * FROM Books")
     return render_template("index.html", books=rows)
 
@@ -164,9 +164,47 @@ def borrow():
         return render_template("borrow.html")
 
 @app.route("/admin", methods=["GET", "POST"])
-@login_required
+# @login_required
 def admin():
     """Allow admin login"""
+
+    # Forget any user_id
+    session.clear()
+
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+
+        # Ensure username was submitted
+        if not request.form.get("username"):
+            return apology("must provide username", 403)
+
+        # Ensure password was submitted
+        elif not request.form.get("password"):
+            return apology("must provide password", 403)
+
+        # Query database for username
+        rows = db.execute("SELECT * FROM admins WHERE username = :username",
+                          username=request.form.get("username"))
+
+        # Ensure username exists and password is correct
+        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
+            return apology("invalid username and/or password", 403)
+
+        # Remember which admin has logged in
+        session["admin_id"] = rows[0]["id"]
+
+        # Redirect user to home page
+        return redirect("/dashboard")
+    else:
+        return render_template("admin.html")
+
+@app.route("/dashboard")
+@admin_required
+def dashboard():
+    """Show admin homapage"""
+    rows = db.execute("SELECT * FROM Books")
+    return render_template("admin_index.html", books=rows)
+
 
 def errorhandler(e):
     """Handle error"""

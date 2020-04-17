@@ -1,0 +1,126 @@
+{% extends "admin_layout.html" %}
+
+{% block title %}
+Read A Book
+{% endblock %}
+
+{% block main %}
+
+<table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th class="th-sm">Title
+            </th>
+            <th class="th-sm">Author
+            </th>
+            <th class="th-sm">ISBN
+            </th>
+            <th class="th-sm">Pages
+            </th>
+            <th class="th-sm">Status
+            </th>
+            <th class="th-sm">Salary
+            </th>
+            <th class="th-sm">Title
+            </th>
+            <th class="th-sm">Author
+            </th>
+            <th class="th-sm">ISBN
+            </th>
+            <th class="th-sm">Pages
+            </th>
+            <th class="th-sm">Status
+            </th>
+            <th class="th-sm">Salary
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Tiger Nixon</td>
+            <td>System Architect</td>
+            <td>Edinburgh</td>
+            <td>61</td>
+            <td>2011/04/25</td>
+            <td>$320,800</td>
+            <td>Donna Snider</td>
+            <td>Customer Support</td>
+            <td>New York</td>
+            <td>27</td>
+            <td>2011/01/25</td>
+            <td>$112,000</td>
+        </tr>
+    </tbody>
+    <!-- <tfoot>
+        <tr>
+            <th>Name
+            </th>
+            <th>Position
+            </th>
+            <th>Office
+            </th>
+            <th>Age
+            </th>
+            <th>Start date
+            </th>
+            <th>Salary
+            </th>
+        </tr>
+    </tfoot> -->
+</table>
+<!--{% for book in books %}-->
+<!--<img src="/static/images/{{ book.isbn }}.jpg" style="float: left; max-width: 80%; margin: 0 2em 2em 0;">-->
+<!--<h3>{{ book.title }}</h3>-->
+<!--<p>by {{book.author }}</p>-->
+<!--<p>Genre: {{ book.category }}</p>-->
+<!--<p>Pages: {{ book.pages }}</p>-->
+<!--<p>Summary: {{ book.description }}</p>-->
+<!--<p>Status: Available</p>-->
+<!--<a href="/borrow"><button type="button" class="btn btn-outline-primary">Borrow Book</button></a>-->
+<!--{% endfor %}-->
+<!-- <div> -->
+    <!-- <table class="table" id="books">
+        <thead>
+            <tr>
+                <th scope="col">Book Title</th>
+                <th scope="col">Author</th>
+                <th scope="col">ISBN</th>
+                <th scope="col">Request Book</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <th scope="row"><a href="/book/{{ book.isbn }}">{{ book.title }}</a></th>
+                <td>{{ book.author }}</td>
+                <td>{{ book.isbn }}</td>
+                <td>
+                    <form action="/borrow" method="get"><button type="submit" class="btn btn-warning">Warning</button></form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table> -->
+<!--  <script>
+    var countries = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.whitespace,
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        // url points to a json file that contains an array of country names, see
+        // https://github.com/twitter/typeahead.js/blob/gh-pages/data/countries.json
+        prefetch: '/static/data/countries.json'
+    });
+
+    // passing in `null` for the `options` arguments will result in the default
+    // options being used
+    $('#prefetch .typeahead').typeahead(null, {
+        name: 'countries',
+        source: countries
+    });
+</script>-->
+<script>
+    $(document).ready(function() {
+        $('#dtBasicExample').DataTable();
+        $('.dataTables_length').addClass('bs-select');
+    });
+</script>
+{% endblock %}

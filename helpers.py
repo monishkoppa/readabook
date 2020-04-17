@@ -34,6 +34,18 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def admin_required(f):
+    """
+    Decorate routes to require login.
+
+    http://flask.pocoo.org/docs/1.0/patterns/viewdecorators/
+    """
+    @wraps(f)
+    def admin_function(*args, **kwargs):
+        if session.get("admin_id") is None:
+            return redirect("/admin")
+        return f(*args, **kwargs)
+    return admin_function
 
 def lookup(symbol):
     """Look up quote for symbol."""
