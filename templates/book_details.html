@@ -5,16 +5,56 @@
 {% endblock %}
 
 {% block main %}
-<h4>{{ book.title }}</h4>
-By <span style="text-transform: uppercase;">{{ book.author }}</span>
 <div class="row">
-    <div class="col col-md-7">
-        <hr>
-        <b>ABOUT <i><span style="text-transform: uppercase;">{{ book.title }}</span></i></b>
+    <div class="col-sm-2">
+        <img src="/static/images/9780142424179.jpg" style="float: left; max-width: 90%; margin: 0 2em 1em 2em;">
     </div>
-    <div class="col col-md-5">
+    <div class="col-sm-7">
+        <b><h3>{{ book.title }}</h3></b>
+        <p>By <span>{{ book.author }}</span></p>
+        <p>{% filter markdown %}{{ book.description }}{% endfilter %}</p>
         <hr>
-        <b>ABOUT <span style="text-transform: uppercase;">{{ book.author }}</span></b>
+        <small>GET A COPY</small>
+        <hr>
+        <div class="row">
+            <div class="col-sm-6">
+                <p><b>Availability:</b> <span class="{{ book.status }}"></span></p>
+            </div>
+            <div class="col-sm-6">
+                <p><b>Availability:</b> <span class="{{ book.status }}"></span></p>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-sm-3">
+                <small>Title</small>
+            </div>
+            <div class="col-sm-9">
+                <small>{{ book.title }}</small>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                <small>Pages</small>
+            </div>
+            <div class="col-sm-9">
+                <small>{{ book.numPages }}</small>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                <small>ISBN</small>
+            </div>
+            <div class="col-sm-9">
+                <small>{{ book.isbn }}</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <small><span style="text-transform: uppercase;">About {{ book.author }}</span></small>
+        <hr>
+        <b><h4>{{ book.author }}</h4></b>
+        <p>{{ author_details }}</p>
     </div>
 </div>
 {% endblock %}

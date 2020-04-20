@@ -8,6 +8,8 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 from helpers import apology, login_required, lookup, usd, admin_required
+from flask_misaka import Misaka
+import wikipedia
 
 # Configure application
 app = Flask(__name__)
@@ -33,6 +35,9 @@ app.config["SESSION_TYPE"] = "filesystem"
 sess = Session()
 sess.init_app(app)
 
+md = Misaka()
+md.init_app(app)
+
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///readabook.db")
 
@@ -41,7 +46,7 @@ db = SQL("sqlite:///readabook.db")
 @login_required
 def index():
     """Show user homapage"""
-    rows = db.execute("SELECT * FROM Books")
+    rows = db.execute("SELECT * FROM books")
     return render_template("index.html", books=rows)
 
 
@@ -142,7 +147,9 @@ def books():
 def book(isbn):
     """Book details"""
     row = db.execute("SELECT * FROM Books WHERE isbn=:isbn", isbn=isbn)
-    return render_template("book_details.html", book=row[0])
+    author_name = row[0]["author"]
+    author_details = db.execute("SELECT * FROM authors WHERE name=:name", name=author_name)
+    return render_template("book_details.html", book=row[0], author_details=author_details[0]["bio"])
 
 
 @app.route("/borrow", methods=["GET", "POST"])
