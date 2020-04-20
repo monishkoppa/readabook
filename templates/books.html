@@ -5,24 +5,29 @@
 {% endblock %}
 
 {% block main %}
-    <table class="table">
+    <table class="table" id="recordTable">
   <thead>
     <tr>
-      <th scope="col">Book Title</th>
-      <th scope="col">Author</th>
-      <th scope="col">ISBN</th>
-      <th scope="col">Request Book</th>
+      <th scope="col">Title</th>
+      <th scope="col">Date Borrowed</th>
+      <th scope="col">Date Returned</th>
     </tr>
   </thead>
   <tbody>
       {% for book in books %}
         <tr>
-      <th scope="row"><a href="/book/{{ book.isbn }}">{{ book.title }}</a></th>
-      <td>{{ book.author }}</td>
-      <td>{{ book.isbn }}</td>
-      <td>Request book</td>
+      <td><a href="/book/{{ book.isbn }}">{{ book.title }}</a></td>
+      <td>{{ book.dateIssued }}</td>
+      <td>{{ book.dateReturned }}</td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+
+<script>
+    $(document).ready(function() {
+        $('#recordTable').DataTable();
+        $('.dataTables_length').addClass('bs-select');
+    });
+</script>
 {% endblock %}

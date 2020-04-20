@@ -1,3 +1,4 @@
+# nothing here, just a playground
 # import requests
 # # book_url = "https://book-genre-classification.herokuapp.com/predict"
 # # data = {"book": f"{title}"}

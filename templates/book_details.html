@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Books
+Books
 {% endblock %}
 
 {% block main %}
@@ -10,7 +10,9 @@
         <img src="/static/images/9780142424179.jpg" style="float: left; max-width: 90%; margin: 0 2em 1em 2em;">
     </div>
     <div class="col-sm-7">
-        <b><h3>{{ book.title }}</h3></b>
+        <b>
+            <h3>{{ book.title }}</h3>
+        </b>
         <p>By <span>{{ book.author }}</span></p>
         <p>{% filter markdown %}{{ book.description }}{% endfilter %}</p>
         <hr>
@@ -21,7 +23,31 @@
                 <p><b>Availability:</b> <span class="{{ book.status }}"></span></p>
             </div>
             <div class="col-sm-6">
-                <p><b>Availability:</b> <span class="{{ book.status }}"></span></p>
+                <p>
+                    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#requestBook" aria-expanded="false" aria-controls="requestBook">
+                        Request book
+                    </button>
+                </p>
+                <div class="collapse" id="requestBook">
+                    <div class="card card-body">
+                        <form action="/borrow/{{ book.isbn }}" method="post">
+                            <div class="form-group">
+                                <label for="pickupAdd">Pickup location</label>
+                                <select name="pickupAdd" class="custom-select">
+                                    <option selected>Choose your Pickup Location</option>
+                                    <option value="Old Madras Road">(Old Madras Road) RMZ Infinity, Old Madras Road, Bangalore-560016</option>
+                                    <option value="Basavanagudi">(Basavanagudi) Near Dominos, Gavipuram Extension, Bangalore - 560019</option>
+                                    <option value="JP Nagar 4th Phase">(JP Nagar 4th Phase) Kalyani Vista, Bilekahalli, Near Delmia Circle, Bangalore-560076</option>
+                                    <option value="Kanakapura Road">(Kanakapura Road) Doddakallasandra, Bangalore-560062</option>
+                                    <option value="Marathahalli">(Marathahalli) Salarpuria hallmark, Marathahalli - Sarjapur Outer Ring Rd, Kaverappa Layout, Kadubeesanahalli, Bengaluru, Karnataka 560103</option>
+                                    <option value="meetup">I will collect the book at the monthly meetup (https://www.meetup.com/Read-A-Book/events)</option>
+                                    <option value="courier">I will pay Rs. 50, Please deliver the book to me (The book return needs to be handled by the Reader)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
         <hr>
@@ -53,7 +79,9 @@
     <div class="col-sm-3">
         <small><span style="text-transform: uppercase;">About {{ book.author }}</span></small>
         <hr>
-        <b><h4>{{ book.author }}</h4></b>
+        <b>
+            <h4>{{ book.author }}</h4>
+        </b>
         <p>{{ author_details }}</p>
     </div>
 </div>

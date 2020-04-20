@@ -1,5 +1,6 @@
-# necessary imports
+# this is the main script that does the magic of serving the app
 
+# necessary imports
 import os
 from cs50 import SQL
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
@@ -7,9 +8,10 @@ from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
-from helpers import apology, login_required, lookup, usd, admin_required
+from helpers import apology, login_required, admin_required
 from flask_misaka import Misaka
 import wikipedia
+from datetime import datetime
 
 # Configure application
 app = Flask(__name__)
@@ -25,8 +27,6 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
-# Custom filter
-app.jinja_env.filters["usd"] = usd
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_FILE_DIR"] = mkdtemp()
@@ -35,13 +35,14 @@ app.config["SESSION_TYPE"] = "filesystem"
 sess = Session()
 sess.init_app(app)
 
+# this converts markdown code into nice looking html pages
 md = Misaka()
 md.init_app(app)
 
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///readabook.db")
 
-
+# start defining website routes
 @app.route("/")
 @login_required
 def index():
@@ -77,7 +78,7 @@ def login():
             return apology("invalid username and/or password", 403)
 
         # Remember which user has logged in
-        session["user_id"] = rows[0]["id"]
+        session["user_id"] = rows[0]["username"]
 
         # Redirect user to home page
         return redirect("/")
@@ -139,37 +140,42 @@ def register():
 @login_required
 def books():
     """List books"""
-    rows = db.execute("SELECT * FROM Books")
+    rows = db.execute("SELECT * FROM books")
 
     return render_template("books.html", books=rows)
 
+# list individual book details
+# url is of the form /book/isbn13
 @app.route("/book/<isbn>")
 def book(isbn):
     """Book details"""
+    # query the db using isbn13
     row = db.execute("SELECT * FROM Books WHERE isbn=:isbn", isbn=isbn)
     author_name = row[0]["author"]
+
+    # query the author db to get author bio scraped from wikipedia
     author_details = db.execute("SELECT * FROM authors WHERE name=:name", name=author_name)
     return render_template("book_details.html", book=row[0], author_details=author_details[0]["bio"])
 
 
-@app.route("/borrow", methods=["GET", "POST"])
-def borrow():
+# allow users to borrow book
+@app.route("/borrow/<isbn>", methods=["POST"])
+@login_required
+def borrow(isbn):
     """Allow request for available books"""
-    if request.method == "POST":
-        if not request.form.get("email"):
-            return apology("Please enter Email address")
-        elif not request.form.get("fullname"):
-            return apology("Please enter Email address")
-        elif not request.form.get("phoneNumber"):
-            return apology("Please enter Email address")
-        elif not request.form.get("bookTitle"):
-            return apology("Please enter Email address")
-        elif not request.form.get("postalAdd"):
-            return apology("Please enter Email address")
+    if not request.form.get("pickupAdd"):
+        return apology("Please choose pickup address")
 
-    else:
-        return render_template("borrow.html")
+    date = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+    books = db.execute("SELECT * FROM books WHERE isbn=:isbn", isbn=isbn)
+    title = books[0]["title"]
+    rows = db.execute("INSERT INTO requests (username, title, isbn, dateRequested, pickup) VALUES (:username, :booktitle, :isbn, :date, :pickup)",
+                      username=session["user_id"], booktitle=title, isbn=isbn, date=date, pickup=request.form.get("pickupAdd"))
+    flash("Book request successful!")
 
+    return redirect(f"/book/{isbn}")
+
+# admin login page
 @app.route("/admin", methods=["GET", "POST"])
 # @login_required
 def admin():
@@ -198,21 +204,75 @@ def admin():
             return apology("invalid username and/or password", 403)
 
         # Remember which admin has logged in
-        session["admin_id"] = rows[0]["id"]
+        session["admin_id"] = rows[0]["username"]
 
         # Redirect user to home page
         return redirect("/dashboard")
     else:
         return render_template("admin.html")
 
+
+@app.route("/record", methods=["GET", "POST"])
+@login_required
+def record():
+    """Display record of issued books"""
+
+    rows = db.execute("SELECT * FROM issued WHERE username = :username",
+                      username=session["user_id"])
+    books = rows[0]
+    return render_template("books.html", books=books)
+
+
+# the admin dashboard
 @app.route("/dashboard")
 @admin_required
 def dashboard():
-    """Show admin homapage"""
-    rows = db.execute("SELECT * FROM Books")
-    return render_template("admin_index.html", books=rows)
+    """Show admin homepage"""
+
+    # entire catalog
+    rows = db.execute("SELECT * FROM books")
+    all_books = rows
+
+    # issued books
+    issued = db.execute("SELECT * FROM issued")
+    books_issued = issued
+
+    # book requests
+    req = db.execute("SELECT * FROM requests")
+    book_req = req
+
+    return render_template("admin_index.html", all_books=all_books, books_issued=books_issued, book_requests=book_req)
 
 
+@app.route("/adminview/<isbn>")
+@admin_required
+def adminview(isbn):
+    """Book details"""
+    # query the db using isbn13
+    row = db.execute("SELECT * FROM books WHERE isbn=:isbn", isbn=isbn)
+    author_name = row[0]["author"]
+
+    # query the author db to get author bio scraped from wikipedia
+    author_details = db.execute("SELECT * FROM authors WHERE name=:name", name=author_name)
+    return render_template("book_details.html", book=row[0], author_details=author_details[0]["bio"])
+
+@app.route("/issue/<isbn>/<username>/<action>", methods=["POST"])
+@admin_required
+def issue(isbn, username, action):
+    if action == "yes":
+        date = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+
+        book_title = db.execute("SELECT * FROM books WHERE isbn=:isbn", isbn=isbn)
+        book_title = book_title[0]["title"]
+        rows = db.execute("INSERT INTO issued (title, isbn, issuedTo, issuedBy, dateIssued, dateReturned) VALUES (:title, :isbn, :username, :admin, :issue_date, :return_date)",
+                          title=book_title, isbn=isbn, username=username, admin=session["admin_id"], issue_date=date, return_date=None)
+        del_ = db.execute("DELETE FROM requests WHERE username=:user_id AND isbn=:isbn_number", user_id=username, isbn_number=isbn)
+    else:
+        del_ = db.execute("DELETE FROM requests WHERE username=:user_id AND isbn=:isbn_number", user_id=username, isbn_number=isbn)
+    return redirect("/dashboard")
+
+## Do not modify the code below
+# standard error handlers
 def errorhandler(e):
     """Handle error"""
     if not isinstance(e, HTTPException):

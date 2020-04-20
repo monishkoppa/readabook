@@ -6,7 +6,72 @@ Read A Book
 
 {% block main %}
 
-<table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+<h3>Book Requests</h3>
+<table id="issues" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th class="th-sm">Username
+            </th>
+            <th class="th-sm">Title
+            </th>
+            <th class="th-sm">ISBN
+            </th>
+            <th class="th-sm">Pickup
+            </th>
+            <th class="th-sm">Action
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for book in book_requests %}
+        <tr>
+            <td>{{ book.username }}</td>
+            <td><a href="/adminview/{{ book.isbn }}">{{ book.title }}</a></td>
+            <td>{{ book.isbn }}</td>
+            <td>{{ book.pickup }}</td>
+            <td><span><form action="/issue/{{ book.isbn }}/{{ book.username }}/yes" method="POST"><button type="submit" class="btn btn-success">Approve</button></form></span> <span><form action="/issue/{{ book.isbn }}/{{ book.username }}/no" method="POST"><button type="submit" class="btn btn-danger">Decline</button></form></span></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Books Issued</h3>
+<table id="issues" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th class="th-sm">Title
+            </th>
+            <th class="th-sm">ISBN
+            </th>
+            <th class="th-sm">Issued To
+            </th>
+            <th class="th-sm">Admin
+            </th>
+            <th class="th-sm">Date Issued
+            </th>
+            <th class="th-sm">Date Returned
+            </th>
+            <th class="th-sm">Action
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for book in books_issued %}
+        <tr>
+            <td><a href="/adminview/{{ book.isbn }}">{{ book.title }}</a></td>
+            <td>{{ book.isbn }}</td>
+            <td>{{ book.issuedTo }}</td>
+            <td>{{ book.issuedBy }}</td>
+            <td>{{ book.dateIssued }}</td>
+            <td>{{ book.dateReturned }}</td>
+            <td><button type="button" class="btn btn-success">Approve</button> <button type="button" class="btn btn-danger">Decline</button></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Catalog</h3>
+<table id="catalog" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
     <thead>
         <tr>
             <th class="th-sm">Title
@@ -17,39 +82,17 @@ Read A Book
             </th>
             <th class="th-sm">Pages
             </th>
-            <th class="th-sm">Status
-            </th>
-            <th class="th-sm">Salary
-            </th>
-            <th class="th-sm">Title
-            </th>
-            <th class="th-sm">Author
-            </th>
-            <th class="th-sm">ISBN
-            </th>
-            <th class="th-sm">Pages
-            </th>
-            <th class="th-sm">Status
-            </th>
-            <th class="th-sm">Salary
-            </th>
         </tr>
     </thead>
     <tbody>
+        {% for book in all_books %}
         <tr>
-            <td>Tiger Nixon</td>
-            <td>System Architect</td>
-            <td>Edinburgh</td>
-            <td>61</td>
-            <td>2011/04/25</td>
-            <td>$320,800</td>
-            <td>Donna Snider</td>
-            <td>Customer Support</td>
-            <td>New York</td>
-            <td>27</td>
-            <td>2011/01/25</td>
-            <td>$112,000</td>
+            <td><a href="/adminview/{{ book.isbn }}">{{ book.title }}</a></td>
+            <td>{{ book.author }}</td>
+            <td>{{ book.isbn }}</td>
+            <td>{{ book.numPages }}</td>
         </tr>
+        {% endfor %}
     </tbody>
     <!-- <tfoot>
         <tr>
@@ -119,7 +162,13 @@ Read A Book
 </script>-->
 <script>
     $(document).ready(function() {
-        $('#dtBasicExample').DataTable();
+        $('#catalog').DataTable();
+        $('.dataTables_length').addClass('bs-select');
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        $('#issues').DataTable();
         $('.dataTables_length').addClass('bs-select');
     });
 </script>
