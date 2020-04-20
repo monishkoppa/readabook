@@ -33,3 +33,13 @@
     * Homepage:
         * [x] Display all books, searchable
         * [ ] Count of the available books
+        
+        
+### Code layout
+There are three large parts of the code:
+
+**Indexing code.** Uses Goodreads API to get a list of books in a user's shelves in xml format. `scrape.py` then scrapes the details of the books listed in `books.xml` -- title, author, isbn, page count etc.
+
+**User interface.** The web server uses `Flask` to serve the app. Users can Register, Log in and Request to borrow books available in the catalog.
+
+**Admin interface.** 
