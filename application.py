@@ -12,6 +12,8 @@ from helpers import apology, login_required, admin_required
 from flask_misaka import Misaka
 import wikipedia
 from datetime import datetime
+from flask_mail import Mail, Message
+
 
 # Configure application
 app = Flask(__name__)
@@ -39,8 +41,21 @@ sess.init_app(app)
 md = Misaka()
 md.init_app(app)
 
+
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///readabook.db")
+
+
+app.config.update(
+	DEBUG=True,
+	#EMAIL SETTINGS
+	MAIL_SERVER='smtp.gmail.com',
+	MAIL_PORT=465,
+	MAIL_USE_SSL=True,
+	MAIL_USERNAME = os.environ.get('MAIL_USERNAME'),
+	MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+	)
+mail = Mail(app)
 
 # start defining website routes
 @app.route("/")
@@ -171,6 +186,15 @@ def borrow(isbn):
     title = books[0]["title"]
     rows = db.execute("INSERT INTO requests (username, title, isbn, dateRequested, pickup) VALUES (:username, :booktitle, :isbn, :date, :pickup)",
                       username=session["user_id"], booktitle=title, isbn=isbn, date=date, pickup=request.form.get("pickupAdd"))
+
+
+    email_recipient = os.environ.get('MAIL_RECIPIENT')
+
+    msg = Message(subject="Hi! I am Debashish.", sender=os.environ.get('MAIL_USERNAME'), recipients=[f"{email_recipient}"])
+    msg.body = "Hi! I am Debashish."
+    msg.html = '<b>Readabook.in</b> test email!'
+    mail.send(msg)
+
     flash("Book request successful!")
 
     return redirect(f"/book/{isbn}")
