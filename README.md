@@ -53,6 +53,13 @@ $ conda create -n readabook python=3.7      # create a virtual env, so that depe
 $ conda activate readabook                  # activate virtual env
 $ pip install -r requirements.txt           # this will install most of the dependencies
 ```
+### Email Notification system (Using Gmail)
+To use this feature please follow the instructions below:
+* run `export MAIL_USERNAME="your-full-gmail-address"`
+* run `export MAIL_PASSWORD="your-gmail-password"`
+* run `export MAIL_RECIPIENT="full-email-address-to-receive-test-email"`
+
+**Note.** Be sure to allow access to less secure apps. Follow the instructions [here](https://support.google.com/accounts/answer/6010255?hl=en%3E). You should also turn off two factor authentication for Gmail, if you have that turned on.
 
 ### Running locally
 To run the app locally on your machine, assuming you have all the dependencies installed, you can:
@@ -67,3 +74,5 @@ $ flask run
 * Debug mode: off
 INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
 ```
+
+
