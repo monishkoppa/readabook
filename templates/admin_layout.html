@@ -13,9 +13,9 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <!-- MDBootstrap Datatables  -->
-<link href="/static/mdb/css/addons/datatables.min.css" rel="stylesheet">
-<!-- MDBootstrap Datatables  -->
-<script type="text/javascript" src="/static/mdb/js/addons/datatables.min.js"></script>
+    <link href="/static/mdb/css/addons/datatables.min.css" rel="stylesheet">
+    <!-- MDBootstrap Datatables  -->
+    <script type="text/javascript" src="/static/mdb/js/addons/datatables.min.js"></script>
 
     <!-- https://favicon.io/emoji-favicons/money-mouth-face/ -->
     <link href="/static/favicon.ico" rel="icon">
@@ -37,20 +37,15 @@
 
 <body>
 
-    <nav class="navbar navbar-expand-md navbar-light bg-light border">
+    <nav class="navbar navbar-expand-lg navbar-light navbar-right">
         <a class="navbar-brand" href="/">Readabook</a>
         <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#navbar" data-toggle="collapse" type="button">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbar">
             {% if session.admin_id %}
-            <ul class="navbar-nav mr-auto mt-2">
-                <li class="nav-item"><a class="nav-link" href="/quote">Books issued</a></li>
-                <li class="nav-item"><a class="nav-link" href="/buy">Books requested</a></li>
-                <li class="nav-item"><a class="nav-link" href="/sell">Acquire books</a></li>
-            </ul>
             <ul class="navbar-nav ml-auto mt-2">
-                <li class="nav-item"><a class="nav-link" href="/logout">Admin Log Out</a></li>
+                <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
             </ul>
             {% else %}
             <ul class="navbar-nav ml-auto mt-2">

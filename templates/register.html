@@ -1,24 +1,46 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Register
+Register
 {% endblock %}
 
 {% block main %}
-<form action="/register" method="post">
-  <div class="form-group">
-    <label for="exampleInputEmail1">Username</label>
-    <input type="text" name="username" class="form-control" id="exampleInputEmail1" placeholder="Username">
-  </div>
-  <div class="form-group">
-    <label for="exampleInputPassword1">Password</label>
-    <input name="password" type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-  </div>
-  <div class="form-group">
-    <label for="exampleInputPassword2">Confirm Password</label>
-    <input name="confirmation" type="password" class="form-control" id="exampleInputPassword2" placeholder="Confirm Password">
-  </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+<div class="form-container">
+    <p class="text-center">Join Readabook</p>
+    <h1 class="text-center"><b>Create your account</b></h1>
+    <form action="/register" method="post">
+        <div class="form-group">
+            <label for="exampleInputEmail1"><b>Username <span style="color:red;">*</span></b></label>
+            <input type="text" name="username" class="form-control bg-light" id="exampleInputEmail1" placeholder="">
+        </div>
+        <div class="form-group">
+            <label for="email"><b>Email address <span style="color:red;">*</span></b></label>
+            <input type="email" name="email" class="form-control bg-light" id="email" placeholder="">
+        </div>
+        <div class="form-group">
+            <label for="fullname"><b>Full name <span style="color:red;">*</span></b></label>
+            <input type="fullname" name="fullname" class="form-control bg-light" id="fullname" placeholder="">
+        </div>
+        <div class="form-group">
+            <label for="phoneNumber"><b>Phone number <span style="color:red;">*</span></b></label>
+            <input type="phoneNumber" name="phoneNumber" class="form-control bg-light" id="phoneNumber" placeholder="">
+        </div>
+        <div class="form-group">
+            <label for="postalAddress"><b>Postal address <span style="color:red;">*</span></b></label>
+            <input type="postalAddress" name="postalAddress" class="form-control bg-light" id="postalAddress" placeholder="">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1"><b>Password <span style="color:red;">*</span></b></label>
+            <input name="password" type="password" class="form-control bg-light" id="exampleInputPassword1" placeholder="">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword2"><b>Confirm Password <span style="color:red;">*</span></b></label>
+            <input name="confirmation" type="password" class="form-control bg-light" id="exampleInputPassword2" placeholder="">
+        </div>
 
+        <div class="form-group">
+            <button type="submit" class="btn btn-success btn-lg" style="width: 100%; margin-top: 2em;"><small><b>Create account</b></small></button>
+        </div>
+    </form>
+</div>
 {% endblock %}

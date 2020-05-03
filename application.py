@@ -143,8 +143,8 @@ def register():
 
         hash_ = generate_password_hash(request.form.get("password"))
 
-        rows = db.execute("INSERT INTO users (username, hash) VALUES (:username, :hash_)",
-                          username=request.form.get("username"), hash_=hash_)
+        rows = db.execute("INSERT INTO users (username, hash, email, fullname, phone, postalAdd) VALUES (:username, :hash_, :email, :fullname, :phone, :postalAdd)",
+                          username=request.form.get("username"), hash_=hash_, email=request.form.get("email"), fullname=request.form.get("fullname"), phone=request.form.get("phoneNumber"), postalAdd=request.form.get("postalAddress"))
         return redirect("/login")
 
     else:
@@ -184,8 +184,15 @@ def borrow(isbn):
     date = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
     books = db.execute("SELECT * FROM books WHERE isbn=:isbn", isbn=isbn)
     title = books[0]["title"]
-    rows = db.execute("INSERT INTO requests (username, title, isbn, dateRequested, pickup) VALUES (:username, :booktitle, :isbn, :date, :pickup)",
-                      username=session["user_id"], booktitle=title, isbn=isbn, date=date, pickup=request.form.get("pickupAdd"))
+
+    rows = db.execute("SELECT * FROM users WHERE username=:username", username=session["user_id"])
+
+    fullname = rows[0]["fullname"]
+    phone = rows[0]["phone"]
+    postalAdd = rows[0]["postalAdd"]
+
+    rows = db.execute("INSERT INTO requests (username, title, isbn, dateRequested, pickup, fullname, phone, postalAdd) VALUES (:username, :booktitle, :isbn, :date, :pickup, :fullname, :phone, :postalAdd)",
+                      username=session["user_id"], booktitle=title, isbn=isbn, date=date, pickup=request.form.get("pickupAdd"), fullname=fullname, phone=phone, postalAdd=postalAdd)
 
 
     email_recipient = os.environ.get('MAIL_RECIPIENT')
@@ -236,15 +243,15 @@ def admin():
         return render_template("admin.html")
 
 
-@app.route("/record", methods=["GET", "POST"])
+@app.route("/record")
 @login_required
 def record():
     """Display record of issued books"""
 
-    rows = db.execute("SELECT * FROM issued WHERE username = :username",
+    books = db.execute("SELECT * FROM issued WHERE issuedTo = :username",
                       username=session["user_id"])
-    books = rows[0]
-    return render_template("books.html", books=books)
+    # books = rows[0]
+    return render_template("record.html", books=books)
 
 
 # the admin dashboard
@@ -291,6 +298,13 @@ def issue(isbn, username, action):
         rows = db.execute("INSERT INTO issued (title, isbn, issuedTo, issuedBy, dateIssued, dateReturned) VALUES (:title, :isbn, :username, :admin, :issue_date, :return_date)",
                           title=book_title, isbn=isbn, username=username, admin=session["admin_id"], issue_date=date, return_date=None)
         del_ = db.execute("DELETE FROM requests WHERE username=:user_id AND isbn=:isbn_number", user_id=username, isbn_number=isbn)
+
+        email_recipient = os.environ.get('MAIL_RECIPIENT')
+
+        msg = Message(subject="Hi! I am Debashish.", sender=os.environ.get('MAIL_USERNAME'), recipients=[f"{email_recipient}"])
+        msg.body = "Hi! I am Debashish."
+        msg.html = '<b>Readabook.in</b> issue test email!'
+        mail.send(msg)
     else:
         del_ = db.execute("DELETE FROM requests WHERE username=:user_id AND isbn=:isbn_number", user_id=username, isbn_number=isbn)
     return redirect("/dashboard")
