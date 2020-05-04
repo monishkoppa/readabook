@@ -6,6 +6,7 @@ Read A Book
 
 {% block main %}
 
+
 <h3>Book Requests</h3>
 <hr>
 <table id="requests" class="table table-hover" cellspacing="0" width="100%">
@@ -39,11 +40,22 @@ Read A Book
             <td>{{ book.phone }}</td>
             <td>{{ book.postalAdd }}</td>
             <td>{{ book.pickup }}</td>
-            <td><span>
-                    <form action="/issue/{{ book.isbn }}/{{ book.username }}/yes" method="POST"><button type="submit" class="btn btn-success">Approve</button></form>
-                </span> <span>
-                    <form action="/issue/{{ book.isbn }}/{{ book.username }}/no" method="POST"><button type="submit" class="btn btn-danger">Decline</button></form>
-                </span></td>
+            <td>
+                <!-- <p>
+                    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#approve" aria-expanded="false" aria-controls="approve">
+                        Approve
+                    </button>
+                </p> -->
+                <!-- <div class="collapse" id="approve"> -->
+                    <!-- <div class="card card-body"> -->
+                        <form action="/issue/{{ book.isbn }}/{{ book.username }}/yes" method="POST">
+                            <input class="datepick" id="{{ loop.index }}" name="issue_date"/>
+                            <button type="submit" class="btn btn-success">Approve</button>
+                        </form>
+                    <!-- </div> -->
+                <!-- </div> -->
+                    <form action="/issue/{{ book.isbn }}/{{ book.username }}/no" method="POST"><button type="submit" class="btn btn-danger">Decline</button></form></td>
+
         </tr>
         {% endfor %}
     </tbody>
@@ -64,6 +76,8 @@ Read A Book
             </th>
             <th class="th-sm">Date Returned
             </th>
+            <th class="th-sm">Action
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -74,6 +88,7 @@ Read A Book
             <td>{{ book.issuedBy }}</td>
             <td>{{ book.dateIssued }}</td>
             <td>{{ book.dateReturned }}</td>
+            <td><button type="button" class="btn btn-success">Approve</button> <button type="button" class="btn btn-danger">Decline</button></td>
         </tr>
         {% endfor %}
     </tbody>
@@ -124,5 +139,14 @@ Read A Book
         $('#issues').DataTable();
         $('.dataTables_length').addClass('bs-select');
     });
+</script>
+
+<script>
+    $('.datepick').each(function(){
+    $(this).datepicker({
+        uiLibrary: 'bootstrap4',
+        format: 'dd mmm yyyy'
+    });
+});
 </script>
 {% endblock %}

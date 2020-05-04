@@ -162,6 +162,7 @@ def books():
 # list individual book details
 # url is of the form /book/isbn13
 @app.route("/book/<isbn>")
+@login_required
 def book(isbn):
     """Book details"""
     # query the db using isbn13
@@ -193,6 +194,21 @@ def borrow(isbn):
 
     rows = db.execute("INSERT INTO requests (username, title, isbn, dateRequested, pickup, fullname, phone, postalAdd) VALUES (:username, :booktitle, :isbn, :date, :pickup, :fullname, :phone, :postalAdd)",
                       username=session["user_id"], booktitle=title, isbn=isbn, date=date, pickup=request.form.get("pickupAdd"), fullname=fullname, phone=phone, postalAdd=postalAdd)
+
+
+
+
+    book = db.execute("SELECT * FROM books WHERE isbn=:isbn", isbn=isbn)
+    count = book[0]["count"]
+    status = book[0]["status"]
+
+    count = count - 1
+    if count < 1:
+        status = "unavailable"
+    else:
+        status = "available"
+
+    rows = db.execute("UPDATE books SET status=:status, count=:count WHERE isbn=:isbn", status=status, count=count, isbn=isbn)
 
 
     email_recipient = os.environ.get('MAIL_RECIPIENT')
@@ -291,7 +307,7 @@ def adminview(isbn):
 @admin_required
 def issue(isbn, username, action):
     if action == "yes":
-        date = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+        date = request.form.get("issue_date")
 
         book_title = db.execute("SELECT * FROM books WHERE isbn=:isbn", isbn=isbn)
         book_title = book_title[0]["title"]

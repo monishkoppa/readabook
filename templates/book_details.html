@@ -22,6 +22,7 @@ Books
             <div class="col-sm-6">
                 <p><b>Availability:</b> <span class="{{ book.status }}"></span></p>
             </div>
+            {% if book.status == "available" %}
             <div class="col-sm-6">
                 <p>
                     <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#requestBook" aria-expanded="false" aria-controls="requestBook">
@@ -49,6 +50,7 @@ Books
                     </div>
                 </div>
             </div>
+            {% endif %}
         </div>
         <hr>
         <div class="row">
