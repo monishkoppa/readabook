@@ -2,7 +2,7 @@
 
 # necessary imports
 import os
-from cs50 import SQL
+# from cs50 import SQL
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
@@ -13,38 +13,44 @@ from flask_misaka import Misaka
 import wikipedia
 from datetime import datetime
 from flask_mail import Mail, Message
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 
 # Configure application
 app = Flask(__name__)
 
-# Ensure templates are auto-reloaded
-app.config["TEMPLATES_AUTO_RELOAD"] = True
+# Check for environment variables
+if not os.getenv("DATABASE_URL"):
+    raise RuntimeError("DATABASE_URL is not set")
+if not os.getenv("MAIL_USERNAME"):
+    raise RuntimeError("MAIL_USERNAME is not set")
 
-# Ensure responses aren't cached
-@app.after_request
-def after_request(response):
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    response.headers["Expires"] = 0
-    response.headers["Pragma"] = "no-cache"
-    return response
+# Ensure templates are auto-reloaded
+# app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+# # Ensure responses aren't cached
+# @app.after_request
+# def after_request(response):
+#     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+#     response.headers["Expires"] = 0
+#     response.headers["Pragma"] = "no-cache"
+#     return response
 
 
 # Configure session to use filesystem (instead of signed cookies)
-app.config["SESSION_FILE_DIR"] = mkdtemp()
+# app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-sess = Session()
-sess.init_app(app)
+sess = Session(app)
 
 # this converts markdown code into nice looking html pages
 md = Misaka()
 md.init_app(app)
 
 
-# Configure CS50 Library to use SQLite database
-db = SQL("sqlite:///readabook.db")
-
+engine = create_engine(os.getenv("DATABASE_URL"))
+db = scoped_session(sessionmaker(bind=engine))
 
 app.config.update(
 	DEBUG=True,
@@ -86,10 +92,12 @@ def login():
 
         # Query database for username
         rows = db.execute("SELECT * FROM users WHERE username = :username",
-                          username=request.form.get("username"))
+                          {"username": request.form.get("username")})
 
+        rows = rows.fetchall()
         # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
+        len_rows = len(rows)
+        if len(rows) != 1 or not check_password_hash(rows[0]['hash'], request.form.get("password")):
             return apology("invalid username and/or password", 403)
 
         # Remember which user has logged in
@@ -135,16 +143,22 @@ def register():
             return apology("passwords do not match", 403)
 
 
-        rows = db.execute("SELECT * FROM users WHERE username = :username",
-                          username=request.form.get("username"))
+        try:
+            rows = db.execute("SELECT * FROM users WHERE username = :username",
+                          {"username": request.form.get("username")})
+        except:
+            pass
 
-        if len(rows) != 0:
+        if len(rows.fetchone()) != 0:
             return apology("username already taken", 403)
 
         hash_ = generate_password_hash(request.form.get("password"))
 
-        rows = db.execute("INSERT INTO users (username, hash, email, fullname, phone, postalAdd) VALUES (:username, :hash_, :email, :fullname, :phone, :postalAdd)",
-                          username=request.form.get("username"), hash_=hash_, email=request.form.get("email"), fullname=request.form.get("fullname"), phone=request.form.get("phoneNumber"), postalAdd=request.form.get("postalAddress"))
+        db.execute("INSERT INTO users (username, hash, email, fullname, phone, postaladd) VALUES (:username, :hash_, :email, :fullname, :phone, :postaladd)", {"username": request.form.get("username"), "hash_": hash_, "email": request.form.get("email"), "fullname": request.form.get("fullname"), "phone": request.form.get("phoneNumber"), "postaladd":request.form.get("postalAddress")})
+
+        db.commit()
+        flash("Registration successful!")
+
         return redirect("/login")
 
     else:
@@ -166,11 +180,13 @@ def books():
 def book(isbn):
     """Book details"""
     # query the db using isbn13
-    row = db.execute("SELECT * FROM Books WHERE isbn=:isbn", isbn=isbn)
+    row = db.execute("SELECT * FROM books WHERE isbn=:isbn", {"isbn": isbn})
+    row = row.fetchall()
     author_name = row[0]["author"]
 
     # query the author db to get author bio scraped from wikipedia
-    author_details = db.execute("SELECT * FROM authors WHERE name=:name", name=author_name)
+    author_details = db.execute("SELECT * FROM authors WHERE name=:name", {"name": author_name})
+    author_details = author_details.fetchall()
     return render_template("book_details.html", book=row[0], author_details=author_details[0]["bio"])
 
 
@@ -190,9 +206,9 @@ def borrow(isbn):
 
     fullname = rows[0]["fullname"]
     phone = rows[0]["phone"]
-    postalAdd = rows[0]["postalAdd"]
+    postalAdd = rows[0]["postaladd"]
 
-    rows = db.execute("INSERT INTO requests (username, title, isbn, dateRequested, pickup, fullname, phone, postalAdd) VALUES (:username, :booktitle, :isbn, :date, :pickup, :fullname, :phone, :postalAdd)",
+    rows = db.execute("INSERT INTO requests (username, title, isbn, dateRequested, pickup, fullname, phone, postaladd) VALUES (:username, :booktitle, :isbn, :date, :pickup, :fullname, :phone, :postalAdd)",
                       username=session["user_id"], booktitle=title, isbn=isbn, date=date, pickup=request.form.get("pickupAdd"), fullname=fullname, phone=phone, postalAdd=postalAdd)
 
 
