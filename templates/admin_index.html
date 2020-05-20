@@ -38,7 +38,7 @@ Read A Book
             <td><a href="/adminview/{{ book.isbn }}">{{ book.title }}</a></td>
             <td>{{ book.isbn }}</td>
             <td>{{ book.phone }}</td>
-            <td>{{ book.postalAdd }}</td>
+            <td>{{ book.postaladd }}</td>
             <td>{{ book.pickup }}</td>
             <td>
                 <!-- <p>
@@ -84,10 +84,10 @@ Read A Book
         {% for book in books_issued %}
         <tr>
             <td><a href="/adminview/{{ book.isbn }}">{{ book.title }}</a></td>
-            <td>{{ book.issuedTo }}</td>
-            <td>{{ book.issuedBy }}</td>
-            <td>{{ book.dateIssued }}</td>
-            <td>{{ book.dateReturned }}</td>
+            <td>{{ book.issued_to }}</td>
+            <td>{{ book.issued_by }}</td>
+            <td>{{ book.date_issued }}</td>
+            <td>{{ book.date_returned }}</td>
             <td><button type="button" class="btn btn-success">Approve</button> <button type="button" class="btn btn-danger">Decline</button></td>
         </tr>
         {% endfor %}

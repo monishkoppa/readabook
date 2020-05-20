@@ -149,7 +149,7 @@ def register():
         except:
             pass
 
-        if len(rows.fetchone()) != 0:
+        if len(rows.fetchall()) != 0:
             return apology("username already taken", 403)
 
         hash_ = generate_password_hash(request.form.get("password"))
@@ -157,8 +157,8 @@ def register():
         db.execute("INSERT INTO users (username, hash, email, fullname, phone, postaladd) VALUES (:username, :hash_, :email, :fullname, :phone, :postaladd)", {"username": request.form.get("username"), "hash_": hash_, "email": request.form.get("email"), "fullname": request.form.get("fullname"), "phone": request.form.get("phoneNumber"), "postaladd":request.form.get("postalAddress")})
 
         db.commit()
-        flash("Registration successful!")
 
+        flash("User Registration successful! You may now log in.")
         return redirect("/login")
 
     else:
@@ -199,42 +199,50 @@ def borrow(isbn):
         return apology("Please choose pickup address")
 
     date = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
-    books = db.execute("SELECT * FROM books WHERE isbn=:isbn", isbn=isbn)
+    books = db.execute("SELECT * FROM books WHERE isbn=:isbn", {"isbn": isbn})
+    books = books.fetchall()
     title = books[0]["title"]
 
-    rows = db.execute("SELECT * FROM users WHERE username=:username", username=session["user_id"])
+    rows = db.execute("SELECT * FROM users WHERE username=:username", {"username": session["user_id"]})
 
+    rows = rows.fetchall()
     fullname = rows[0]["fullname"]
+    email_id = rows[0]["email"]
     phone = rows[0]["phone"]
     postalAdd = rows[0]["postaladd"]
 
-    rows = db.execute("INSERT INTO requests (username, title, isbn, dateRequested, pickup, fullname, phone, postaladd) VALUES (:username, :booktitle, :isbn, :date, :pickup, :fullname, :phone, :postalAdd)",
-                      username=session["user_id"], booktitle=title, isbn=isbn, date=date, pickup=request.form.get("pickupAdd"), fullname=fullname, phone=phone, postalAdd=postalAdd)
+    try:
+        email_recipient = email_id
+
+        msg = Message(subject="Hi! I am Debashish.", sender=os.environ.get('MAIL_USERNAME'), recipients=[f"{email_recipient}"])
+        msg.body = "Hi! I am Debashish."
+        msg.html = '<b>Readabook.in</b> test email!'
+        mail.send(msg)
 
 
+        rows = db.execute("INSERT INTO requests (username, title, isbn, date_requested, pickup, fullname, phone, postaladd) VALUES (:username, :booktitle, :isbn, :date, :pickup, :fullname, :phone, :postaladd)",
+                          {"username": session["user_id"], "booktitle": title, "isbn": isbn, "date": date, "pickup": request.form.get("pickupAdd"), "fullname": fullname, "phone": phone, "postaladd": postalAdd})
+        db.commit()
+
+        book = db.execute("SELECT * FROM books WHERE isbn=:isbn", {"isbn": isbn})
+        book = book.fetchall()
+        count = book[0]["count"]
+        status = book[0]["status"]
 
 
-    book = db.execute("SELECT * FROM books WHERE isbn=:isbn", isbn=isbn)
-    count = book[0]["count"]
-    status = book[0]["status"]
+        if count < 1:
+            status = "unavailable"
+        else:
+            status = "available"
+            count = count - 1
 
-    count = count - 1
-    if count < 1:
-        status = "unavailable"
-    else:
-        status = "available"
+        rows = db.execute("UPDATE books SET status=:status, count=:count WHERE isbn=:isbn", {"status": status, "count": count, "isbn": isbn})
 
-    rows = db.execute("UPDATE books SET status=:status, count=:count WHERE isbn=:isbn", status=status, count=count, isbn=isbn)
+        db.commit()
 
-
-    email_recipient = os.environ.get('MAIL_RECIPIENT')
-
-    msg = Message(subject="Hi! I am Debashish.", sender=os.environ.get('MAIL_USERNAME'), recipients=[f"{email_recipient}"])
-    msg.body = "Hi! I am Debashish."
-    msg.html = '<b>Readabook.in</b> test email!'
-    mail.send(msg)
-
-    flash("Book request successful!")
+        flash("Book request successful!")
+    except:
+        flash("Book request was unsuccessful! Please try again.")
 
     return redirect(f"/book/{isbn}")
 
@@ -260,8 +268,10 @@ def admin():
 
         # Query database for username
         rows = db.execute("SELECT * FROM admins WHERE username = :username",
-                          username=request.form.get("username"))
+                          {"username": request.form.get("username")})
 
+
+        rows = rows.fetchall()
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
             return apology("invalid username and/or password", 403)
@@ -280,9 +290,15 @@ def admin():
 def record():
     """Display record of issued books"""
 
-    books = db.execute("SELECT * FROM issued WHERE issuedTo = :username",
-                      username=session["user_id"])
+    try:
+        books = db.execute("SELECT * FROM issued WHERE issued_to = :username",
+                      {"username": session["user_id"]})
+
+        books = books.fetchall()
+    except:
+        pass
     # books = rows[0]
+
     return render_template("record.html", books=books)
 
 
@@ -294,15 +310,15 @@ def dashboard():
 
     # entire catalog
     rows = db.execute("SELECT * FROM books")
-    all_books = rows
+    all_books = rows.fetchall()
 
     # issued books
     issued = db.execute("SELECT * FROM issued")
-    books_issued = issued
+    books_issued = issued.fetchall()
 
     # book requests
     req = db.execute("SELECT * FROM requests")
-    book_req = req
+    book_req = req.fetchall()
 
     return render_template("admin_index.html", all_books=all_books, books_issued=books_issued, book_requests=book_req)
 
@@ -312,33 +328,51 @@ def dashboard():
 def adminview(isbn):
     """Book details"""
     # query the db using isbn13
-    row = db.execute("SELECT * FROM books WHERE isbn=:isbn", isbn=isbn)
+    row = db.execute("SELECT * FROM books WHERE isbn=:isbn", {"isbn": isbn})
+    row = row.fetchall()
     author_name = row[0]["author"]
 
     # query the author db to get author bio scraped from wikipedia
-    author_details = db.execute("SELECT * FROM authors WHERE name=:name", name=author_name)
+    author_details = db.execute("SELECT * FROM authors WHERE name=:name", {"name": author_name})
+    author_details = author_details.fetchall()
     return render_template("book_details.html", book=row[0], author_details=author_details[0]["bio"])
 
 @app.route("/issue/<isbn>/<username>/<action>", methods=["POST"])
 @admin_required
 def issue(isbn, username, action):
     if action == "yes":
-        date = request.form.get("issue_date")
+        try:
+            user = db.execute("SELECT * FROM users WHERE username=:username", {"username": username})
+            user = user.fetchall()
 
-        book_title = db.execute("SELECT * FROM books WHERE isbn=:isbn", isbn=isbn)
-        book_title = book_title[0]["title"]
-        rows = db.execute("INSERT INTO issued (title, isbn, issuedTo, issuedBy, dateIssued, dateReturned) VALUES (:title, :isbn, :username, :admin, :issue_date, :return_date)",
-                          title=book_title, isbn=isbn, username=username, admin=session["admin_id"], issue_date=date, return_date=None)
-        del_ = db.execute("DELETE FROM requests WHERE username=:user_id AND isbn=:isbn_number", user_id=username, isbn_number=isbn)
+            email_recipient = user[0]["email"]
 
-        email_recipient = os.environ.get('MAIL_RECIPIENT')
+            msg = Message(subject="Hi! I am Debashish.", sender=os.environ.get('MAIL_USERNAME'), recipients=[f"{email_recipient}"])
+            msg.body = "Hi! I am Debashish."
+            msg.html = '<b>Readabook.in</b> issue test email!'
+            mail.send(msg)
 
-        msg = Message(subject="Hi! I am Debashish.", sender=os.environ.get('MAIL_USERNAME'), recipients=[f"{email_recipient}"])
-        msg.body = "Hi! I am Debashish."
-        msg.html = '<b>Readabook.in</b> issue test email!'
-        mail.send(msg)
+            date = request.form.get("issue_date")
+
+            today = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+
+            book_title = db.execute("SELECT * FROM books WHERE isbn=:isbn", {"isbn": isbn})
+            book_title = book_title.fetchall()
+            book_title = book_title[0]["title"]
+            rows = db.execute("INSERT INTO issued (title, isbn, issued_to, issued_by, date_issued, date_returned) VALUES (:title, :isbn, :username, :admin, :issue_date, :return_date)",
+                              {"title": book_title, "isbn": isbn, "username": username, "admin": session["admin_id"], "issue_date": date, "return_date": today})
+
+            db.commit()
+
+            del_ = db.execute("DELETE FROM requests WHERE username=:user_id AND isbn=:isbn_number", {"user_id": username, "isbn_number": isbn})
+
+            db.commit()
+
+        except:
+            flash("Please try again!")
+
     else:
-        del_ = db.execute("DELETE FROM requests WHERE username=:user_id AND isbn=:isbn_number", user_id=username, isbn_number=isbn)
+        del_ = db.execute("DELETE FROM requests WHERE username=:user_id AND isbn=:isbn_number", {"user_id": username, "isbn_number": isbn})
     return redirect("/dashboard")
 
 ## Do not modify the code below
