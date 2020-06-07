@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "admin_layout.html" %}
 
 {% block title %}
 Read A Book - {{ book.title }}
@@ -7,8 +7,7 @@ Read A Book - {{ book.title }}
 {% block main %}
 <div class="row">
     <div class="col-sm-2">
-        <img src="/static/images/{{ book.isbn }}.jpg" style="float: left; max-width: 90%; margin: 0 2em 1em 2em;"
-            alt="Cover of {{ book.title }}">
+        <img src="/static/images/{{ book.isbn }}.jpg" style="float: left; max-width: 90%; margin: 0 2em 1em 2em;" alt="Cover of {{ book.title }}">
     </div>
     <div class="col-sm-7">
         <b>
@@ -26,8 +25,7 @@ Read A Book - {{ book.title }}
             {% if book.status == "available" %}
             <div class="col-sm-6">
                 <p>
-                    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#requestBook"
-                        aria-expanded="false" aria-controls="requestBook">
+                    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#requestBook" aria-expanded="false" aria-controls="requestBook">
                         Request book
                     </button>
                 </p>
@@ -38,21 +36,13 @@ Read A Book - {{ book.title }}
                                 <label for="pickupAdd">Pickup location</label>
                                 <select name="pickupAdd" class="custom-select">
                                     <option selected>Choose your Pickup Location</option>
-                                    <option value="Old Madras Road">(Old Madras Road) RMZ Infinity, Old Madras Road,
-                                        Bangalore-560016</option>
-                                    <option value="Basavanagudi">(Basavanagudi) Near Dominos, Gavipuram Extension,
-                                        Bangalore - 560019</option>
-                                    <option value="JP Nagar 4th Phase">(JP Nagar 4th Phase) Kalyani Vista, Bilekahalli,
-                                        Near Delmia Circle, Bangalore-560076</option>
-                                    <option value="Kanakapura Road">(Kanakapura Road) Doddakallasandra, Bangalore-560062
-                                    </option>
-                                    <option value="Marathahalli">(Marathahalli) Salarpuria hallmark, Marathahalli -
-                                        Sarjapur Outer Ring Rd, Kaverappa Layout, Kadubeesanahalli, Bengaluru, Karnataka
-                                        560103</option>
-                                    <option value="meetup">I will collect the book at the monthly meetup
-                                        (https://www.meetup.com/Read-A-Book/events)</option>
-                                    <option value="courier">I will pay Rs. 50, Please deliver the book to me (The book
-                                        return needs to be handled by the Reader)</option>
+                                    <option value="Old Madras Road">(Old Madras Road) RMZ Infinity, Old Madras Road, Bangalore-560016</option>
+                                    <option value="Basavanagudi">(Basavanagudi) Near Dominos, Gavipuram Extension, Bangalore - 560019</option>
+                                    <option value="JP Nagar 4th Phase">(JP Nagar 4th Phase) Kalyani Vista, Bilekahalli, Near Delmia Circle, Bangalore-560076</option>
+                                    <option value="Kanakapura Road">(Kanakapura Road) Doddakallasandra, Bangalore-560062</option>
+                                    <option value="Marathahalli">(Marathahalli) Salarpuria hallmark, Marathahalli - Sarjapur Outer Ring Rd, Kaverappa Layout, Kadubeesanahalli, Bengaluru, Karnataka 560103</option>
+                                    <option value="meetup">I will collect the book at the monthly meetup (https://www.meetup.com/Read-A-Book/events)</option>
+                                    <option value="courier">I will pay Rs. 50, Please deliver the book to me (The book return needs to be handled by the Reader)</option>
                                 </select>
                             </div>
                             <button type="submit" class="btn btn-primary">Submit</button>

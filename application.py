@@ -65,7 +65,7 @@ mail = Mail(app)
 
 # start defining website routes
 @app.route("/")
-@login_required
+# @login_required
 def index():
     """Show user homapage"""
     rows = db.execute("SELECT * FROM books")
@@ -176,7 +176,7 @@ def books():
 # list individual book details
 # url is of the form /book/isbn13
 @app.route("/book/<isbn>")
-@login_required
+# @login_required
 def book(isbn):
     """Book details"""
     # query the db using isbn13
@@ -335,7 +335,7 @@ def adminview(isbn):
     # query the author db to get author bio scraped from wikipedia
     author_details = db.execute("SELECT * FROM authors WHERE name=:name", {"name": author_name})
     author_details = author_details.fetchall()
-    return render_template("book_details.html", book=row[0], author_details=author_details[0]["bio"])
+    return render_template("book_details_admin.html", book=row[0], author_details=author_details[0]["bio"])
 
 @app.route("/issue/<isbn>/<username>/<action>", methods=["POST"])
 @admin_required
