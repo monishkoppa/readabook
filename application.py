@@ -211,6 +211,15 @@ def borrow(isbn):
     phone = rows[0]["phone"]
     postalAdd = rows[0]["postaladd"]
 
+    # prevent multiple request of same book by same user
+    present = db.execute("SELECT * FROM requests WHERE username=:username AND title=:title", {"username": session["user_id"], "title": title})
+
+    present = present.fetchall()
+
+    if len(present) > 0:
+        flash("You already requested for the book!")
+        return redirect(f"/book/{isbn}")
+
     try:
         email_recipient = email_id
 
@@ -295,11 +304,14 @@ def record():
                       {"username": session["user_id"]})
 
         books = books.fetchall()
+
+        books_requested = db.execute("SELECT * FROM requests WHERE username = :username", {"username": session["user_id"]})
+
+        books_requested = books_requested.fetchall()
     except:
         pass
-    # books = rows[0]
 
-    return render_template("record.html", books=books)
+    return render_template("record.html", books=books, books_requested=books_requested)
 
 
 # the admin dashboard

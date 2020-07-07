@@ -13,10 +13,10 @@ Read A Book
             </th>
             <th class="th-sm">Author
             </th>
-            <th class="th-sm">ISBN
+            <!-- <th class="th-sm">ISBN
             </th>
             <th class="th-sm">Pages
-            </th>
+            </th> -->
             <th class="th-sm">Availability
             </th>
         </tr>
@@ -24,11 +24,14 @@ Read A Book
     <tbody>
         {% for book in books %}
         <tr>
-            <td><a href="/book/{{ book.isbn }}">{{ book.title }}</a></td>
+            <td>
+                <img src="/static/images/{{ book.isbn }}.jpg" alt="Book cover of {{ book.title }}" width="150">
+                <a href="/book/{{ book.isbn }}">{{ book.title }}</a>
+            </td>
             <td>{{ book.author }}</td>
-            <td>{{ book.isbn }}</td>
-            <td>{{ book.numPages }}</td>
-            <td class="{{ book.status }} text-center"></td>
+            <!-- <td>{{ book.isbn }}</td> -->
+            <!-- <td>{{ book.numPages }}</td> -->
+            <td class="text-capitalize">{{ book.status }}</td>
         </tr>
         {% endfor %}
     </tbody>

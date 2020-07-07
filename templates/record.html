@@ -1,37 +1,60 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Books
+Books
 {% endblock %}
 
 {% block main %}
+<h2>Books Requested</h2>
+<table class="table table-hover" id="booksReq">
+  <thead class="thead-light">
+    <tr>
+      <th scope="col">Title</th>
+      <th scope="col">Date Requested</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for book in books_requested %}
+    <tr>
+      <td><a href="/book/{{ book.isbn }}">{{ book.title }}</a></td>
+      <td>{{ book.date_requested }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
-<h2>Books</h2>
-    <table class="table table-hover" id="recordTable">
+
+<h2>Books Issued</h2>
+<table class="table table-hover" id="recordTable">
   <thead class="thead-light">
     <tr>
       <th scope="col">Title</th>
       <th scope="col">Date Borrowed</th>
       <th scope="col">Date Returned</th>
-      <th scope="col">Remarks</th>
     </tr>
   </thead>
   <tbody>
-      {% for book in books %}
-        <tr>
+    {% for book in books %}
+    <tr>
       <td><a href="/book/{{ book.isbn }}">{{ book.title }}</a></td>
       <td>{{ book.date_issued }}</td>
       <td>{{ book.date_returned }}</td>
-      <td>{{ book.remarks }}</td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
 
 <script>
-    $(document).ready(function() {
-        $('#recordTable').DataTable();
-        $('.dataTables_length').addClass('bs-select');
-    });
+  $(document).ready(function () {
+    $('#recordTable').DataTable();
+    $('.dataTables_length').addClass('bs-select');
+  });
+</script>
+
+<script>
+  $(document).ready(function () {
+    $('#booksReq').DataTable();
+    $('.dataTables_length').addClass('bs-select');
+  });
 </script>
 {% endblock %}
