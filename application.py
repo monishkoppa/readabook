@@ -53,17 +53,19 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
 app.config.update(
-	DEBUG=True,
-	#EMAIL SETTINGS
-	MAIL_SERVER='smtp.gmail.com',
-	MAIL_PORT=465,
-	MAIL_USE_SSL=True,
-	MAIL_USERNAME = os.environ.get('MAIL_USERNAME'),
-	MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-	)
+    DEBUG=True,
+    # EMAIL SETTINGS
+    MAIL_SERVER='smtp.gmail.com',
+    MAIL_PORT=465,
+    MAIL_USE_SSL=True,
+    MAIL_USERNAME=os.environ.get('MAIL_USERNAME'),
+    MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
+)
 mail = Mail(app)
 
 # start defining website routes
+
+
 @app.route("/")
 # @login_required
 def index():
@@ -142,10 +144,9 @@ def register():
         if password != confirm:
             return apology("passwords do not match", 403)
 
-
         try:
             rows = db.execute("SELECT * FROM users WHERE username = :username",
-                          {"username": request.form.get("username")})
+                              {"username": request.form.get("username")})
         except:
             pass
 
@@ -154,7 +155,8 @@ def register():
 
         hash_ = generate_password_hash(request.form.get("password"))
 
-        db.execute("INSERT INTO users (username, hash, email, fullname, phone, postaladd) VALUES (:username, :hash_, :email, :fullname, :phone, :postaladd)", {"username": request.form.get("username"), "hash_": hash_, "email": request.form.get("email"), "fullname": request.form.get("fullname"), "phone": request.form.get("phoneNumber"), "postaladd":request.form.get("postalAddress")})
+        db.execute("INSERT INTO users (username, hash, email, fullname, phone, postaladd) VALUES (:username, :hash_, :email, :fullname, :phone, :postaladd)", {"username": request.form.get(
+            "username"), "hash_": hash_, "email": request.form.get("email"), "fullname": request.form.get("fullname"), "phone": request.form.get("phoneNumber"), "postaladd": request.form.get("postalAddress")})
 
         db.commit()
 
@@ -175,6 +177,8 @@ def books():
 
 # list individual book details
 # url is of the form /book/isbn13
+
+
 @app.route("/book/<isbn>")
 # @login_required
 def book(isbn):
@@ -185,7 +189,8 @@ def book(isbn):
     author_name = row[0]["author"]
 
     # query the author db to get author bio scraped from wikipedia
-    author_details = db.execute("SELECT * FROM authors WHERE name=:name", {"name": author_name})
+    author_details = db.execute(
+        "SELECT * FROM authors WHERE name=:name", {"name": author_name})
     author_details = author_details.fetchall()
     return render_template("book_details.html", book=row[0], author_details=author_details[0]["bio"])
 
@@ -203,7 +208,8 @@ def borrow(isbn):
     books = books.fetchall()
     title = books[0]["title"]
 
-    rows = db.execute("SELECT * FROM users WHERE username=:username", {"username": session["user_id"]})
+    rows = db.execute("SELECT * FROM users WHERE username=:username",
+                      {"username": session["user_id"]})
 
     rows = rows.fetchall()
     fullname = rows[0]["fullname"]
@@ -212,7 +218,8 @@ def borrow(isbn):
     postalAdd = rows[0]["postaladd"]
 
     # prevent multiple request of same book by same user
-    present = db.execute("SELECT * FROM requests WHERE username=:username AND title=:title", {"username": session["user_id"], "title": title})
+    present = db.execute("SELECT * FROM requests WHERE username=:username AND title=:title",
+                         {"username": session["user_id"], "title": title})
 
     present = present.fetchall()
 
@@ -223,21 +230,21 @@ def borrow(isbn):
     try:
         email_recipient = email_id
 
-        msg = Message(subject="Hi! I am Debashish.", sender=os.environ.get('MAIL_USERNAME'), recipients=[f"{email_recipient}"])
+        msg = Message(subject="Hi! I am Debashish.", sender=os.environ.get(
+            'MAIL_USERNAME'), recipients=[f"{email_recipient}"])
         msg.body = "Hi! I am Debashish."
         msg.html = '<b>Readabook.in</b> test email!'
         mail.send(msg)
-
 
         rows = db.execute("INSERT INTO requests (username, title, isbn, date_requested, pickup, fullname, phone, postaladd) VALUES (:username, :booktitle, :isbn, :date, :pickup, :fullname, :phone, :postaladd)",
                           {"username": session["user_id"], "booktitle": title, "isbn": isbn, "date": date, "pickup": request.form.get("pickupAdd"), "fullname": fullname, "phone": phone, "postaladd": postalAdd})
         db.commit()
 
-        book = db.execute("SELECT * FROM books WHERE isbn=:isbn", {"isbn": isbn})
+        book = db.execute(
+            "SELECT * FROM books WHERE isbn=:isbn", {"isbn": isbn})
         book = book.fetchall()
         count = book[0]["count"]
         status = book[0]["status"]
-
 
         if count < 1:
             status = "unavailable"
@@ -245,7 +252,8 @@ def borrow(isbn):
             status = "available"
             count = count - 1
 
-        rows = db.execute("UPDATE books SET status=:status, count=:count WHERE isbn=:isbn", {"status": status, "count": count, "isbn": isbn})
+        rows = db.execute("UPDATE books SET status=:status, count=:count WHERE isbn=:isbn", {
+                          "status": status, "count": count, "isbn": isbn})
 
         db.commit()
 
@@ -256,6 +264,8 @@ def borrow(isbn):
     return redirect(f"/book/{isbn}")
 
 # admin login page
+
+
 @app.route("/admin", methods=["GET", "POST"])
 # @login_required
 def admin():
@@ -279,7 +289,6 @@ def admin():
         rows = db.execute("SELECT * FROM admins WHERE username = :username",
                           {"username": request.form.get("username")})
 
-
         rows = rows.fetchall()
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
@@ -301,11 +310,12 @@ def record():
 
     try:
         books = db.execute("SELECT * FROM issued WHERE issued_to = :username",
-                      {"username": session["user_id"]})
+                           {"username": session["user_id"]})
 
         books = books.fetchall()
 
-        books_requested = db.execute("SELECT * FROM requests WHERE username = :username", {"username": session["user_id"]})
+        books_requested = db.execute(
+            "SELECT * FROM requests WHERE username = :username", {"username": session["user_id"]})
 
         books_requested = books_requested.fetchall()
     except:
@@ -345,21 +355,25 @@ def adminview(isbn):
     author_name = row[0]["author"]
 
     # query the author db to get author bio scraped from wikipedia
-    author_details = db.execute("SELECT * FROM authors WHERE name=:name", {"name": author_name})
+    author_details = db.execute(
+        "SELECT * FROM authors WHERE name=:name", {"name": author_name})
     author_details = author_details.fetchall()
     return render_template("book_details_admin.html", book=row[0], author_details=author_details[0]["bio"])
+
 
 @app.route("/issue/<isbn>/<username>/<action>", methods=["POST"])
 @admin_required
 def issue(isbn, username, action):
     if action == "yes":
         try:
-            user = db.execute("SELECT * FROM users WHERE username=:username", {"username": username})
+            user = db.execute(
+                "SELECT * FROM users WHERE username=:username", {"username": username})
             user = user.fetchall()
 
             email_recipient = user[0]["email"]
 
-            msg = Message(subject="Hi! I am Debashish.", sender=os.environ.get('MAIL_USERNAME'), recipients=[f"{email_recipient}"])
+            msg = Message(subject="Hi! I am Debashish.", sender=os.environ.get(
+                'MAIL_USERNAME'), recipients=[f"{email_recipient}"])
             msg.body = "Hi! I am Debashish."
             msg.html = '<b>Readabook.in</b> issue test email!'
             mail.send(msg)
@@ -368,7 +382,8 @@ def issue(isbn, username, action):
 
             today = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
 
-            book_title = db.execute("SELECT * FROM books WHERE isbn=:isbn", {"isbn": isbn})
+            book_title = db.execute(
+                "SELECT * FROM books WHERE isbn=:isbn", {"isbn": isbn})
             book_title = book_title.fetchall()
             book_title = book_title[0]["title"]
             rows = db.execute("INSERT INTO issued (title, isbn, issued_to, issued_by, date_issued, date_returned) VALUES (:title, :isbn, :username, :admin, :issue_date, :return_date)",
@@ -376,7 +391,8 @@ def issue(isbn, username, action):
 
             db.commit()
 
-            del_ = db.execute("DELETE FROM requests WHERE username=:user_id AND isbn=:isbn_number", {"user_id": username, "isbn_number": isbn})
+            del_ = db.execute("DELETE FROM requests WHERE username=:user_id AND isbn=:isbn_number", {
+                              "user_id": username, "isbn_number": isbn})
 
             db.commit()
 
@@ -384,11 +400,49 @@ def issue(isbn, username, action):
             flash("Please try again!")
 
     else:
-        del_ = db.execute("DELETE FROM requests WHERE username=:user_id AND isbn=:isbn_number", {"user_id": username, "isbn_number": isbn})
+        del_ = db.execute("DELETE FROM requests WHERE username=:user_id AND isbn=:isbn_number", {
+                          "user_id": username, "isbn_number": isbn})
     return redirect("/dashboard")
 
-## Do not modify the code below
+
+@app.route("/remove/<isbn>/<action>", methods=["POST"])
+@admin_required
+def remove(isbn, action):
+    if action == "no":
+        try:
+            del_ = db.execute("DELETE FROM books WHERE isbn=:isbn", {
+                              "isbn": isbn})
+
+            db.commit()
+            flash("Book removed from catalogue.")
+        except:
+            flash("Please try again!")
+
+    else:
+        flash("An error occured.")
+    return redirect("/dashboard")
+
+@app.route("/addbook", methods=["POST", "GET"])
+@admin_required
+def addbook():
+    if request.method == "POST":
+
+        desc = "test description"
+
+        db.execute("INSERT INTO books (title, author, genre, isbn, numpages, description, status, count) VALUES (:title, :author, :genre, :isbn, :numpages, :description, :status, :count)", {"title": request.form.get(
+            "title"), "author": request.form.get("author"), "genre": request.form.get("genre"), "isbn": request.form.get("isbn"), "numpages": request.form.get("numpages"), "description": desc, "status": "available", "count": request.form.get("count")})
+
+        db.commit()
+
+        flash("Book added successfully!")
+        return redirect("/dashboard")
+    else:
+        return render_template("add_book.html")
+
+# Do not modify the code below
 # standard error handlers
+
+
 def errorhandler(e):
     """Handle error"""
     if not isinstance(e, HTTPException):

@@ -1,0 +1,41 @@
+{% extends "admin_layout.html" %}
+
+{% block title %}
+Add a book
+{% endblock %}
+
+{% block main %}
+<div class="form-container">
+    <h1 class="text-center"><b>Add a book</b></h1>
+    <form action="/addbook" method="post">
+        <div class="form-group">
+            <label for="exampleInputEmail1"><b>Title <span style="color:red;">*</span></b></label>
+            <input type="text" name="title" class="form-control bg-light" id="exampleInputEmail1" placeholder="">
+        </div>
+        <div class="form-group">
+            <label for="author"><b>Author <span style="color:red;">*</span></b></label>
+            <input type="text" name="author" class="form-control bg-light" id="author" placeholder="">
+        </div>
+        <div class="form-group">
+            <label for="genre"><b>Genre <span style="color:red;">*</span></b></label>
+            <input type="text" name="genre" class="form-control bg-light" id="genre" placeholder="">
+        </div>
+        <div class="form-group">
+            <label for="isbn"><b>ISBN13 <span style="color:red;">*</span></b></label>
+            <input type="text" name="isbn" class="form-control bg-light" id="isbn" placeholder="">
+        </div>
+        <div class="form-group">
+            <label for="numpages"><b>Pages <span style="color:red;">*</span></b></label>
+            <input type="text" name="numpages" class="form-control bg-light" id="numpages" placeholder="">
+        </div>
+        <div class="form-group">
+            <label for="count"><b>How many books of the same title? <span style="color:red;">*</span></b></label>
+            <input name="count" type="text" class="form-control bg-light" id="count" placeholder="">
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-success btn-lg" style="width: 100%; margin-top: 2em;"><small><b>Create account</b></small></button>
+        </div>
+    </form>
+</div>
+{% endblock %}
