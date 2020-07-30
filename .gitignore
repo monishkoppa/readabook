@@ -10,3 +10,6 @@ instance/
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+flask_session
+__pycache__/application.cpython-37.pyc

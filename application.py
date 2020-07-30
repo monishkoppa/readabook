@@ -230,10 +230,10 @@ def borrow(isbn):
     try:
         email_recipient = email_id
 
-        msg = Message(subject="Hi! I am Debashish.", sender=os.environ.get(
+        msg = Message(subject="You requested a book.", sender=os.environ.get(
             'MAIL_USERNAME'), recipients=[f"{email_recipient}"])
-        msg.body = "Hi! I am Debashish."
-        msg.html = '<b>Readabook.in</b> test email!'
+        msg.body = "You requested a book."
+        msg.html = f'This is just to let you know that we have received your request for <b>{title}</b>. Have a good day!'
         mail.send(msg)
 
         rows = db.execute("INSERT INTO requests (username, title, isbn, date_requested, pickup, fullname, phone, postaladd) VALUES (:username, :booktitle, :isbn, :date, :pickup, :fullname, :phone, :postaladd)",
@@ -372,10 +372,10 @@ def issue(isbn, username, action):
 
             email_recipient = user[0]["email"]
 
-            msg = Message(subject="Hi! I am Debashish.", sender=os.environ.get(
+            msg = Message(subject="Your book request was approved!", sender=os.environ.get(
                 'MAIL_USERNAME'), recipients=[f"{email_recipient}"])
-            msg.body = "Hi! I am Debashish."
-            msg.html = '<b>Readabook.in</b> issue test email!'
+            msg.body = "Your book request was approved!"
+            msg.html = str(request.form.get("comment_approve"))
             mail.send(msg)
 
             date = request.form.get("issue_date")
@@ -400,8 +400,21 @@ def issue(isbn, username, action):
             flash("Please try again!")
 
     else:
+        user = db.execute(
+            "SELECT * FROM users WHERE username=:username", {"username": username})
+        user = user.fetchall()
+
+        email_recipient = user[0]["email"]
+
+        msg = Message(subject="Sorry! Your book request was declined.", sender=os.environ.get(
+            'MAIL_USERNAME'), recipients=[f"{email_recipient}"])
+        msg.body = "Sorry! Your book request was declined."
+        msg.html = str(request.form.get("comment_decline"))
+        mail.send(msg)
+
         del_ = db.execute("DELETE FROM requests WHERE username=:user_id AND isbn=:isbn_number", {
                           "user_id": username, "isbn_number": isbn})
+        db.commit()
     return redirect("/dashboard")
 
 
@@ -421,6 +434,7 @@ def remove(isbn, action):
     else:
         flash("An error occured.")
     return redirect("/dashboard")
+
 
 @app.route("/addbook", methods=["POST", "GET"])
 @admin_required
