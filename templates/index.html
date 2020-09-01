@@ -6,6 +6,7 @@ Read A Book
 
 {% block main %}
 
+<!-- display the entire catalogue -->
 <table id="bookList" class="table table-hover" width="100%">
     <thead class="thead-light">
         <tr>
@@ -13,10 +14,6 @@ Read A Book
             </th>
             <th class="th-sm">Author
             </th>
-            <!-- <th class="th-sm">ISBN
-            </th>
-            <th class="th-sm">Pages
-            </th> -->
             <th class="th-sm">Availability
             </th>
         </tr>
@@ -25,20 +22,19 @@ Read A Book
         {% for book in books %}
         <tr>
             <td>
-                <img src="/static/images/{{ book.isbn }}.jpg" alt="Book cover of {{ book.title }}" width="150">
-                <a href="/book/{{ book.isbn }}">{{ book.title }}</a>
+                <img src="/static/images/{{ book.isbn }}.jpg" alt="Book cover of {{ book.title }}" width="23%">
+                &nbsp; <a href="/book/{{ book.isbn }}" class="book-title">{{ book.title }}</a>
             </td>
             <td>{{ book.author }}</td>
-            <!-- <td>{{ book.isbn }}</td> -->
-            <!-- <td>{{ book.numPages }}</td> -->
             <td class="text-capitalize">{{ book.status }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
+<!-- list books on the table -->
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('#bookList').DataTable();
         $('.dataTables_length').addClass('bs-select');
     });
