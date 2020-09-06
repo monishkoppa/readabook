@@ -1,7 +1,11 @@
 # readabook.in
 :books: Encourage people to read paperbacks, old style.
 
-        
+* Run `get_books_list.py`
+* Run `authors.py`
+* Run `books.py`
+
+
 ### Code layout
 There are three large parts of the code:
 

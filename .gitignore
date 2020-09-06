@@ -13,3 +13,5 @@ instance/
 
 flask_session
 __pycache__/application.cpython-37.pyc
+
+.vscode
