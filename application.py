@@ -412,6 +412,20 @@ def issue(isbn, username, action):
         msg.html = str(request.form.get("comment_decline"))
         mail.send(msg)
 
+        book = db.execute(
+            "SELECT * FROM books WHERE isbn=:isbn", {"isbn": isbn})
+        book = book.fetchall()
+        count = book[0]["count"]
+        status = book[0]["status"]
+
+        status = "available"
+        count = count + 1
+
+        rows = db.execute("UPDATE books SET status=:status, count=:count WHERE isbn=:isbn", {
+                          "status": status, "count": count, "isbn": isbn})
+
+        db.commit()
+
         del_ = db.execute("DELETE FROM requests WHERE username=:user_id AND isbn=:isbn_number", {
                           "user_id": username, "isbn_number": isbn})
         db.commit()
